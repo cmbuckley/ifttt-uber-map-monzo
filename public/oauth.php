@@ -2,11 +2,13 @@
 
 require_once '../vendor/autoload.php';
 
+use Starsquare\Monzo\Provider;
+
 $file = '../config/oauth.json';
 $config = json_decode(file_get_contents($file), true);
 session_start();
 
-$provider = new Starsquare\Monzo\Provider([
+$provider = new Provider([
     'baseAuthorizationUrl' => 'https://auth.monzo.com/',
     'clientId'     => $config['client_id'],
     'clientSecret' => $config['client_secret'],

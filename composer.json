@@ -1,0 +1,20 @@
+{
+    "name": "cmbuckley/ifttt-uber-monzo",
+    "description": "Add the Uber map as an attachment to the Monzo transaction",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Chris Buckley",
+            "email": "chris@cmbuckley.co.uk"
+        }
+    ],
+    "require": {
+        "edcs/oauth2-mondo": "^1.0",
+        "guzzlehttp/guzzle": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Starsquare\\Monzo\\": "src/"
+        }
+    }
+}
