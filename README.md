@@ -20,3 +20,13 @@ TBC
 ```CompletedAt={{CompletedAt}}&RideType={{RideType}}&VehicleMakeModel={{VehicleMakeModel}}&VehicleLicensePlate={{VehicleLicensePlate}}&DriverName={{DriverName}}&DriverPhoneNumber={{DriverPhoneNumber}}&DriverPhoto={{DriverPhoto}}&SurgeMultiplier={{SurgeMultiplier}}&PickupLat={{PickupLat}}&PickupLong={{PickupLong}}&DropoffLat={{DropoffLat}}&DropoffLong={{DropoffLong}}&TripMapImage={{TripMapImage}}```
 
 9. Save the Applet.
+
+## Logging in to Monzo
+
+TBC
+
+## Still to do
+
+* Review data formats sent by IFTTT
+* Check if token refresh works
+* Check if RideType can be used to differentiate account type
