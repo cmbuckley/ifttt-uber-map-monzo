@@ -34,6 +34,10 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || md5($_SERVER['PHP_AUTH_USER'] . ':' . $
     error(401, 'You must use Basic authentication with this API', 'WWW-Authenticate: Basic realm="ifttt-uber-monzo"');
 }
 
+$temp = tempnam('/tmp', 'uberMonzoAttachment');
+file_put_contents($temp, file_get_contents('php://input'));
+syslog(LOG_DEBUG, "Wrote POST body to $temp");
+
 if (!isset($_POST['TripMapImage'], $_POST['CompletedAt'])) {
     error(400, 'You must supply a TripMapImage URL and CompletedAt timestamp');
 }
