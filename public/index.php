@@ -61,6 +61,23 @@ $end = $completedTime->add($interval);
 
 $token = new AccessToken($config['access_token']);
 
+if ($token->hasExpired()) {
+    syslog(LOG_INFO, 'Access token has expired, refreshing');
+
+    $token = $provider->getAccessToken('refresh_token', [
+        'refresh_token' => $token->getRefreshToken()
+    ]);
+
+    $config['access_token'] = [
+        'access_token'      => $token->getToken(),
+        'expires'           => $token->getExpires(),
+        'refresh_token'     => $token->getRefreshToken(),
+        'resource_owner_id' => $token->getResourceOwnerId()
+    ];
+
+	file_put_contents($file, json_encode($config, JSON_PRETTY_PRINT));
+}
+
 try {
     $accounts = $provider->getAccounts($token, 'uk_retail');
 } catch (\Exception $e) {
