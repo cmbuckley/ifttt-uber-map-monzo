@@ -38,12 +38,23 @@ $temp = tempnam('/tmp', 'uberMonzoAttachment');
 file_put_contents($temp, file_get_contents('php://input'));
 syslog(LOG_DEBUG, "Wrote POST body to $temp");
 
-if (!isset($_POST['TripMapImage'], $_POST['CompletedAt'])) {
+if (empty($_POST['TripMapImage']) || empty($_POST['CompletedAt'])) {
     error(400, 'You must supply a TripMapImage URL and CompletedAt timestamp');
 }
 
 syslog(LOG_INFO, 'Looking for Uber transaction at ' . $_POST['CompletedAt']);
-$completedTime = DateTimeImmutable::createFromFormat('U', $_POST['CompletedAt']);
+$completedTime = DateTimeImmutable::createFromFormat('F j, Y \a\t h:iA', $_POST['CompletedAt']);
+
+if (!$completedTime) {
+  error(400, "Cannot parse CompletedAt '${_POST['CompletedAt']}'");
+}
+
+$extension = pathinfo($_POST['TripMapImage'], PATHINFO_EXTENSION);
+
+if (!$extension) {
+    error(400, "Invalid TripMapImage '${_POST['TripMapImage']}'");
+}
+
 $interval = new DateInterval('PT1M');
 $start = $completedTime->sub($interval);
 $end = $completedTime->add($interval);
@@ -53,7 +64,7 @@ $token = new AccessToken($config['access_token']);
 try {
     $accounts = $provider->getAccounts($token, 'uk_retail');
 } catch (\Exception $e) {
-    error(503, 'Could not retrieve accounts: ' . $e);
+    error(503, 'Could not retrieve accounts: ' . $e->getMessage());
 }
 
 $transactions = $provider->getTransactions($token, $accounts[0]['id'], $start, $end);
@@ -65,6 +76,11 @@ if (count($uberTransactions) !== 1) {
     error(503, sprintf('Cannot match uber transactions (found %d)', count($uberTransactions)));
 }
 
-$type = 'image/' . pathinfo($_POST['TripMapImage'], PATHINFO_EXTENSION);
+$type = "image/$extension";
 syslog(LOG_INFO, sprintf('Adding %s of type %s to transaction %s', $_POST['TripMapImage'], $type, $uberTransactions[0]['id']));
-$result = $provider->registerAttachment($token, $uberTransactions[0]['id'], $_POST['TripMapImage'], $type);
+
+try {
+    $result = $provider->registerAttachment($token, $uberTransactions[0]['id'], $_POST['TripMapImage'], $type);
+} catch (\Exception $e) {
+    error(503, 'Cannot register attachment: ' . $e->getMessage());
+}
